@@ -2,7 +2,7 @@
 	"description" : "SFC-SFSの補助機能を提供します",
 	"name" : "SFSアシスタント",
 	"manifest_version": 2,
-	"version" : "0.3.0",
+	"version" : "1.0.0",
 	"icons" : {
 		"16" : "icon16.png",
 		"48" : "icon48.png",
@@ -15,19 +15,33 @@
 				"https://vu.sfc.keio.ac.jp/sfc-sfs/sfs_class/report/submit_by_file.cgi*",
 				"https://vu.sfc.keio.ac.jp/sfc-sfs/sfs_class/report/submit_by_url.cgi*"
 			],
+			"run_at" : "document_end",
 			"js" : ["kadai.js"]
 		},
 		{
 			"matches": [
 				"https://vu.sfc.keio.ac.jp/sfc-sfs/*"
 			],
+			"exclude_matches": [
+				"https://vu.sfc.keio.ac.jp/sfc-sfs/",
+				"https://vu.sfc.keio.ac.jp/sfc-sfs/index.cgi*"
+			],
+			"run_at" : "document_end",
 			"js": ["better_link.js"],
+			"all_frames" : true
+		},
+		{
+			"matches": [
+				"https://vu.sfc.keio.ac.jp/sfc-sfs/portal_s/s01.cgi*"
+			],
+			"run_at" : "document_end",
+			"js": ["get_session.js"],
 			"all_frames" : true
 		}
 	],
 	"browser_action": {
 		"default_popup" : "popup.html",
-		"default_icon": "icon128.png",
 		"default_title" : "未提出の課題一覧"
-	  }
+	},
+	"permissions" : [ "storage" ]
 }

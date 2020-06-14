@@ -1,14 +1,21 @@
-window.setTimeout(
-	function(){
-		if(!document.querySelector('input[name="u_login"]')){
-			var st2id = location.search.match(/[0-9a-f]{48}/);
-			/*document.body.innerHTML = document.body.innerHTML.replace(/href="\/sfc-sfs\/"/g, 'href="https://vu.sfc.keio.ac.jp/sfc-sfs/portal_s/s01.cgi?id=' + st2id + '&type=s&mode=1"');
-			document.body.innerHTML = document.body.innerHTML.replace(/(href="https:\/\/vu\.sfc\.keio\.ac\.jp\/sfc-sfs\/.*?") target="_blank"/g, "$1 target=\"_top\"");
-			document.body.innerHTML = document.body.innerHTML.replace(/(href="(?!https?:\/\/).*?") target="_blank"/g, "$1");
-			document.body.innerHTML = document.body.innerHTML.replace(/ target="(?!_).*?"/g, "");
-			document.body.innerHTML = document.body.innerHTML.replace(/ target="_f_new"/g, "");*/
-			//document.body.innerHTML = document.body.innerHTML;
-		}
-	},
-	1000
+const get_sfsid = () => {
+	return new Promise((resolve, reject) => {
+		chrome.storage.local.get(['sfsid'], function(result) {
+			if(result.sfsid){
+				resolve(result.sfsid);
+			} else {
+				reject();
+			}
+		});
+	});
+}
+get_sfsid().then(
+	response => {
+		document.body.innerHTML = document.body.innerHTML
+		.replace(/<a href="\/sfc-sfs\/"><img/, '<a href="https://vu.sfc.keio.ac.jp/sfc-sfs/portal_s/s01.cgi?id=' + response + '&type=s&mode=1"><img')
+		.replace(/(href="https:\/\/vu\.sfc\.keio\.ac\.jp\/sfc-sfs\/.*?") target="_blank"/g, "$1 target=\"_top\"")
+		.replace(/(href="(?!https?:\/\/).*?") target="_blank"/g, "$1")
+		.replace(/ target="(?!_).*?"/g, "")
+		.replace(/ target="_f_new"/g, "");
+	}
 )

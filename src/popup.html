@@ -1,16 +1,51 @@
 <!DOCTYPE html>
-  <html>
-    <head>
-      <style>
-        button {
-          height: 30px;
-          width: 30px;
-          outline: none;
-		  background: yellow;
-        }
-      </style>
-    </head>
-    <body>
-      <button id="changeColor"></button>
-    </body>
+<html>
+<head>
+<meta charset="utf8">
+<meta name=viewport content="width=device-width, initial-scale=1">
+<meta name="format-detection" content="telephone=no">
+<link rel="stylesheet" href="reset.css">
+<style>
+	body {
+		width: 350px;
+		height: 500px;
+		padding: 10px;
+		font-size: 12px;
+		font-family: "Century Gothic",Verdana,Arial,sans-serif;
+	}
+	a {
+		color: #333399;
+	}
+	a:hover {
+		text-decoration: underline;
+	}
+	.one {
+		font-weight: bold;
+		font-size: 13px;
+		border-left: #FFCC66 10px solid;
+		border-top: #CCCCCC 0px solid;
+		border-right: #CCCCCC 0px solid;
+		border-bottom: #CCCCCC 1px solid;
+		line-height: 15px;
+		background-color: #FFFFFF;
+		padding: 3px 5px 3px 8px;
+		margin-bottom: 5px;
+	}
+	.lesson {
+		font-weight: bold;
+		padding: 5px 0px;
+	}
+	progress {
+		display: block;
+		width: 100%;
+	}
+</style>
+</head>
+<body>
+
+<h4 class="one">未提出の課題一覧</h4>
+<div id="lessons">読込中…
+<progress value="0" max="0" id="progress"></progress></div>
+<script src="popup.js"></script>
+</body>
 </html>
