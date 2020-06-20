@@ -6,12 +6,15 @@
 <meta name="format-detection" content="telephone=no">
 <link rel="stylesheet" href="reset.css">
 <style>
-	body {
+	html, body {
 		width: 350px;
 		height: 500px;
-		padding: 10px;
 		font-size: 12px;
 		font-family: "Century Gothic",Verdana,Arial,sans-serif;
+		overflow-y: scroll;
+	}
+	.body {
+		padding: 10px;
 	}
 	a {
 		color: #333399;
@@ -39,13 +42,37 @@
 		display: block;
 		width: 100%;
 	}
+	.notice {
+		width: calc(100% - 20px);
+		margin: 10px auto 0 auto;
+		padding: 5px;
+		border-radius: 10px;
+		background-color: hsl(51, 100%, 88%);
+		color: hsl(54, 100%, 24%);
+		border: solid 1px hsl(51, 100%, 35%);
+	}
+	#reload {
+		cursor: pointer;
+		float: right;
+		position: relative;
+		top: -2px;
+		display: none;
+	}
+	#reload img {
+		height: 19px;
+	}
+	#lastTaskUpdate {
+		font-weight: normal;
+		color:hsl(0 0% 50%);
+	}
 </style>
 </head>
 <body>
-
-<h4 class="one">未提出の課題一覧</h4>
-<div id="lessons">読込中…
-<progress value="0" max="0" id="progress"></progress></div>
+<div class="body">
+<h4 class="one">未提出の課題一覧 <span id="lastTaskUpdate"></span><button id="reload"><img src="refresh.svg" alt="更新" title="更新"></button></h4>
+<div id="loading-area"></div>
+<div id="lessons"></div>
+</div>
 <script src="popup.js"></script>
 </body>
 </html>
