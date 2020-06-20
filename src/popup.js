@@ -111,7 +111,7 @@ const showTasks =  async () => {
 		if(storage.user.lastTaskUpdate) {
 			let ltu = new Date(storage.user.lastTaskUpdate);
 			document.querySelector('#lastTaskUpdate').innerHTML
-			 = `(${ltu.getFullYear()}/${ltu.getMonth() + 1}/${ltu.getDate()} ${ltu.getHours()}:${ltu.getMinutes()})`;
+			 = `(${ltu.toLocaleDateString()} ${ltu.toLocaleTimeString().slice(0, -3)})`;
 		} else {
 			await load();  // 未取得と見なす
 		}

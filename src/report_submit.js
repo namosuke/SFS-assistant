@@ -47,6 +47,18 @@ if(document.querySelector('textarea[name="report_text"]')) {
 	document.querySelector('textarea[name="report_text"]').parentNode.insertBefore(div, document.querySelector('textarea[name="report_text"]').nextSibling);
 
 	document.addEventListener('keyup', function() {
-		document.querySelector('#textCounter').innerHTML = document.querySelector('textarea[name="report_text"]').value.length + ' 文字';
+		let text = document.querySelector('textarea[name="report_text"]').value;
+		if(text.match(/[a-z]/gi)?.length * 2 >= text.length) {
+			let words = text.replace(/[ \n.,!?()<>'"[\]]+/g, ' ').split(' ');
+			if(words[words.length - 1] == '') {
+				wordsLen = words.length - 1;
+			} else {
+				wordsLen = words.length;
+			}
+			counter = `${wordsLen} word${wordsLen == 1 ? '' : 's'}`;
+		} else {
+			counter = `${text.length} 文字`;
+		}
+		document.querySelector('#textCounter').innerHTML = counter;
 	});
 }

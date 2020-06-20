@@ -1,12 +1,13 @@
+var getStorage = () => {
+	return new Promise((resolve, reject) => {
+		chrome.storage.local.get(null, function(result) {
+			result ? resolve(result) : reject();
+		});
+	});
+}
+
 if(document.referrer === 'https://vu.sfc.keio.ac.jp/sfc-sfs/login.cgi'){
 	let match = location.search.match(/lang=([a-z]{2}).*id=([0-9a-f]{48})/);
-	const getStorage = () => {
-		return new Promise((resolve, reject) => {
-			chrome.storage.local.get(null, function(result) {
-				result ? resolve(result) : reject();
-			});
-		});
-	}
 	(async () => {
 		let storage = await getStorage();
 		if(Object.keys(storage).length === 0) {

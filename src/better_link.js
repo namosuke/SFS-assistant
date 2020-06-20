@@ -1,7 +1,7 @@
 if(/<a href="\/sfc-sfs\/" target="_parent"><b>SFC-SFS トップページ<\/b><\/a> に戻り、ログインしなおしてください。<br>/.test(document.body.innerHTML)) {
 	location.href = 'https://vu.sfc.keio.ac.jp/sfc-sfs/';
 }
-const getStorage = () => {
+var getStorage = () => {
 	return new Promise((resolve, reject) => {
 		chrome.storage.local.get(null, function(result) {
 			result ? resolve(result) : reject();

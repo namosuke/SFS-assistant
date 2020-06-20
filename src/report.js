@@ -1,4 +1,4 @@
-const getStorage = () => {
+var getStorage = () => {
 	return new Promise((resolve, reject) => {
 		chrome.storage.local.get(null, function(result) {
 			result ? resolve(result) : reject();
