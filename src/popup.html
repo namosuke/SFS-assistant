@@ -56,15 +56,20 @@
 		float: right;
 		position: relative;
 		top: -2px;
+		display: none;
 	}
 	#reload img {
 		height: 19px;
+	}
+	#lastTaskUpdate {
+		font-weight: normal;
+		color:hsl(0 0% 50%);
 	}
 </style>
 </head>
 <body>
 <div class="body">
-<h4 class="one">未提出の課題一覧<button id="reload"><img src="refresh.svg" alt="更新" title="更新"></button></h4>
+<h4 class="one">未提出の課題一覧 <span id="lastTaskUpdate"></span><button id="reload"><img src="refresh.svg" alt="更新" title="更新"></button></h4>
 <div id="loading-area"></div>
 <div id="lessons"></div>
 </div>

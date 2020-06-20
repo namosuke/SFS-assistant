@@ -1,4 +1,4 @@
-// sessionをChrome strageから取得する
+// sessionをChrome strageから取得
 const getStorage = () => {
 	return new Promise((resolve, reject) => {
 		chrome.storage.local.get(null, function(result) {
@@ -6,22 +6,22 @@ const getStorage = () => {
 		});
 	});
 }
-const getSession = storage => {
-	if(Object.keys(storage).length !== 0) {
-		return storage.user.session;
-	} else {
+const checkStorage = storage => {
+	if(Object.keys(storage).length === 0) {
 		let lessons = document.querySelector('#lessons');
 		lessons.innerHTML = `<div class="notice">SFC-SFSにログインしてください。</div>`;
 		window.open('https://vu.sfc.keio.ac.jp/sfc-sfs/', '_blank');
 		return false;
+	} else {
+		return true;
 	}
 }
 
-// 受講中のクラスを取得する
-const loadLessons = (session) => {
+// 受講中のクラスを取得
+const loadLessons = (storage) => {
 	return new Promise((resolve, reject) => {
 		let xhr = new XMLHttpRequest();
-		let url = 'https://vu.sfc.keio.ac.jp/sfc-sfs/sfs_class/student/view_list.cgi?id=' + session;
+		let url = `https://vu.sfc.keio.ac.jp/sfc-sfs/sfs_class/student/view_list.cgi?id=${storage.user.session}`;
 		xhr.open("GET", url, true);
 		xhr.onreadystatechange = () => {
 			if (xhr.readyState == 4 && xhr.status == 200) {
@@ -31,7 +31,7 @@ const loadLessons = (session) => {
 					window.open('https://vu.sfc.keio.ac.jp/sfc-sfs/', '_blank');
 					return;
 				}
-				let matches = xhr.responseText.matchAll(/<a href="(.*?)" target="_blank">(.*?)<\/a>/sg);
+				let matches = xhr.responseText.matchAll(/<a href=".*?ks=(\w*)&yc=(\w*).*?" target="_blank">(.*?)<\/a>/sg);
 				resolve(matches);
 			}
 		}
@@ -39,28 +39,31 @@ const loadLessons = (session) => {
 	});
 }
 
-// 未提出の課題を取得する
-const loadTasks = (url, name, progress) => {
+// 課題を取得
+const loadTasks = (yc, storage, progress) => {
 	return new Promise((resolve, reject) => {
 		let xhr = new XMLHttpRequest();
+		let url = `https://vu.sfc.keio.ac.jp/sfc-sfs/sfs_class/student/s_class_top.cgi?yc=${yc}&id=${storage.user.session}`;
 		xhr.open("GET", url, true);
 		xhr.onreadystatechange = () => {
 			if (xhr.readyState == 4 && xhr.status == 200) {
 				progress.value++;
 				let matches = xhr.responseText.matchAll(
-					/課題No\.(.*?) \n<a href=\.\.\/report\/report\.cgi\?(.*?) target=report>「(.*?)」<\/a>\n<font color="(.*?)">(?:.*?)deadline<\/span>: (.*?), 提出者(.*?)名/sg
+					/課題No\.(.*?) \n<a href=\.\.\/report\/report\.cgi.*? target=report>「(.*?)」<\/a>\n<font color="(.*?)">.*?deadline<\/span>: (.*?), 提出者(.*?)名/sg
 				);
-				let text = '';
+				storage['lesson'][yc]['task'] = [];
+				let i = 0;
 				for(let match of matches) {
-					if(match[4] === 'red'){
-						text += `<p><img src=https://vu.sfc.keio.ac.jp/sfc-sfs/img2/square_red.gif> No.${match[1]} 
-						<a href="https://vu.sfc.keio.ac.jp/sfc-sfs/sfs_class/report/report.cgi?${match[2]}" target="_blank">「${match[3]}」</a><br>　(〆切: ${match[5]}, 提出者${match[6]}名 ) <p>`;
+					storage['lesson'][yc]['task'][i] = {
+						taskNum : Number(match[1]),
+						name : match[2],
+						submitted : (match[3] === 'green'),
+						deadline : match[4],
+						submitter : Number(match[5])
 					}
+					i++;
 				}
-				if(text !== '') {
-					text = `<p class="lesson">${name}</p>${text}`;
-				}
-				resolve(text);
+				resolve();
 			}
 		}
 		xhr.send();
@@ -68,32 +71,70 @@ const loadTasks = (url, name, progress) => {
 }
 
 const load = async () => {
-	let loading = document.querySelector('#loading-area');
-	loading.innerHTML = `<progress value="0" max="0" id="progress"></progress>`;
 	const storage = await getStorage();
-	const session = getSession(storage);
-	if(session) {
-		let matches = await loadLessons(session);
+	if(checkStorage(storage)) {
+		document.querySelector('#reload').style.display = 'none';
+		let loading = document.querySelector('#loading-area');
+		loading.innerHTML = `<progress value="0" max="0" id="progress"></progress>`;
+		// ストレージ初期化
+		storage['lesson'] = {};
+		let matches = await loadLessons(storage);
 		let promises = [];
 		let i = 0;
 		let progress = document.querySelector('#progress');
 		for(let match of matches) {
-			promises[i] = loadTasks(match[1], match[2], progress);
+			storage['lesson'][match[2]] = {
+				ks : match[1],
+				name : match[3]
+			};
+			promises[i] = loadTasks(match[2], storage, progress);
 			i++;
 		}
 		progress.setAttribute('max', i);
+		progress.value++;
 		Promise.all(promises).then(
-			response => {
-				let text = '';
-				for(let value of response) {
-					text += value;
-				}
-				lessons.innerHTML = text;
+			() => {
+				storage.user.lastTaskUpdate = Date.now();
+				console.log(storage);
+				chrome.storage.local.set(storage);
+				showTasks();
 				loading.innerHTML = '';
 			}
 		);
 	}
 };
 
+// 未提出の課題一覧を表示
+const showTasks =  async () => {
+	const storage = await getStorage();
+	if(checkStorage(storage)) {
+		if(storage.user.lastTaskUpdate) {
+			let ltu = new Date(storage.user.lastTaskUpdate);
+			document.querySelector('#lastTaskUpdate').innerHTML
+			 = `(${ltu.getFullYear()}/${ltu.getMonth() + 1}/${ltu.getDate()} ${ltu.getHours()}:${ltu.getMinutes()})`;
+		} else {
+			await load();  // 未取得と見なす
+		}
+		let text = '';
+		for(let yc in storage['lesson']) {
+			let text2 = '';
+			for(let task of storage['lesson'][yc]['task']){
+				if(!task.submitted) {
+					text2 += `<p><img src=https://vu.sfc.keio.ac.jp/sfc-sfs/img2/square_red.gif> No.${task.taskNum} 
+					<a href="https://vu.sfc.keio.ac.jp/sfc-sfs/sfs_class/report/report.cgi?${yc}+${task.taskNum}+${storage.user.session}+${storage.user.lang}" target="_blank">「${task.name}」</a><br>　(〆切: ${task.deadline}, 提出者${task.submitter}名 ) <p>`;
+				}
+			}
+			if(text2 != ''){
+				text += `<p class="lesson">${storage['lesson'][yc]['name']}</p>${text2}`;
+			}
+		}
+		document.querySelector('#lessons').innerHTML = text;
+		document.querySelector('#reload').style.display = 'inline-block';
+	}
+}
+
+
 let button = document.querySelector('#reload');
 button.onclick = load;
+
+showTasks();

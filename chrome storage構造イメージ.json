@@ -1,0 +1,31 @@
+{
+	"user" : {
+		"session" : "(session id)",
+		"lang" : "ja",
+		"lastLogin" : 1589251200,
+		"lastTaskUpdate" : 1589251200
+	},
+	"lesson" : {
+		"2020_25621" : {
+			"name" : "ドイツ語インテンシブ１ GB",
+			"ks" : "B2211",
+			"task" : [
+				{},
+				{
+					"name" : "Lektion1",
+					"taskNum" : 3,
+					"submitted" : false,
+					"submitter" : 11,
+					"deadline" : 1589251200,
+					"archived" : false
+				}
+			]
+		}
+	},
+	"timetable" : [
+		[
+			["2020_25621"],
+			["2020_43741", "2020_26963"]
+		]
+	]
+}
