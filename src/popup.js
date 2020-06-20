@@ -1,25 +1,36 @@
-// sfsidをChrome strageから取得する
-const get_sfsid = () => {
+// sessionをChrome strageから取得する
+const getStorage = () => {
 	return new Promise((resolve, reject) => {
-		chrome.storage.local.get(['sfsid'], function(result) {
-			if(result.sfsid){
-				resolve(result.sfsid);
-			} else {
-				let lessons = document.querySelector('#lessons');
-				lessons.innerHTML = `⚠ SFC-SFSにログインしてください`;
-				window.open('https://vu.sfc.keio.ac.jp/sfc-sfs/', '_blank');
-			}
+		chrome.storage.local.get(null, function(result) {
+			result ? resolve(result) : reject();
 		});
 	});
 }
+const getSession = storage => {
+	if(Object.keys(storage).length !== 0) {
+		return storage.user.session;
+	} else {
+		let lessons = document.querySelector('#lessons');
+		lessons.innerHTML = `<div class="notice">SFC-SFSにログインしてください。</div>`;
+		window.open('https://vu.sfc.keio.ac.jp/sfc-sfs/', '_blank');
+		return false;
+	}
+}
+
 // 受講中のクラスを取得する
-const loadLessons = (sfsid) => {
+const loadLessons = (session) => {
 	return new Promise((resolve, reject) => {
 		let xhr = new XMLHttpRequest();
-		let url = 'https://vu.sfc.keio.ac.jp/sfc-sfs/sfs_class/student/view_list.cgi?id=' + sfsid;
+		let url = 'https://vu.sfc.keio.ac.jp/sfc-sfs/sfs_class/student/view_list.cgi?id=' + session;
 		xhr.open("GET", url, true);
 		xhr.onreadystatechange = () => {
 			if (xhr.readyState == 4 && xhr.status == 200) {
+				if(/<a href="\/sfc-sfs\/" target="_parent"><b>SFC-SFS トップページ<\/b><\/a> に戻り、ログインしなおしてください。<br>/.test(xhr.responseText)) {
+					let lessons = document.querySelector('#lessons');
+					lessons.innerHTML = `<div class="notice">セッションがタイムアウトしました。再ログインしてください。</div>`;
+					window.open('https://vu.sfc.keio.ac.jp/sfc-sfs/', '_blank');
+					return;
+				}
 				let matches = xhr.responseText.matchAll(/<a href="(.*?)" target="_blank">(.*?)<\/a>/sg);
 				resolve(matches);
 			}
@@ -27,6 +38,7 @@ const loadLessons = (sfsid) => {
 		xhr.send();
 	});
 }
+
 // 未提出の課題を取得する
 const loadTasks = (url, name, progress) => {
 	return new Promise((resolve, reject) => {
@@ -56,25 +68,28 @@ const loadTasks = (url, name, progress) => {
 }
 
 (async () => {
-	const sfsid = await get_sfsid();
-	let matches = await loadLessons(sfsid);
-	let promises = [];
-	let i = 0;
-	let progress = document.querySelector('#progress');
-	for(let match of matches) {
-		promises[i] = loadTasks(match[1], match[2], progress);
-		i++;
-	}
-	progress.setAttribute('max', i + 1);
-	progress.value = 2;
-	Promise.all(promises).then(
-		response => {
-			let text = '';
-			for(let value of response) {
-				text += value;
-			}
-			let lessons = document.querySelector('#lessons');
-			lessons.innerHTML = text;
+	const storage = await getStorage();
+	const session = getSession(storage);
+	if(session) {
+		let matches = await loadLessons(session);
+		let promises = [];
+		let i = 0;
+		let progress = document.querySelector('#progress');
+		for(let match of matches) {
+			promises[i] = loadTasks(match[1], match[2], progress);
+			i++;
 		}
-	);
+		progress.setAttribute('max', i + 1);
+		progress.value = 2;
+		Promise.all(promises).then(
+			response => {
+				let text = '';
+				for(let value of response) {
+					text += value;
+				}
+				let lessons = document.querySelector('#lessons');
+				lessons.innerHTML = text;
+			}
+		);
+	}
 })();

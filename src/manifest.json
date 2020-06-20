@@ -16,7 +16,14 @@
 				"https://vu.sfc.keio.ac.jp/sfc-sfs/sfs_class/report/submit_by_url.cgi*"
 			],
 			"run_at" : "document_end",
-			"js" : ["kadai.js"]
+			"js" : ["report_submit.js"]
+		},
+		{
+			"matches" : [
+				"https://vu.sfc.keio.ac.jp/sfc-sfs/sfs_class/report/report.cgi*"
+			],
+			"run_at" : "document_end",
+			"js" : ["report.js"]
 		},
 		{
 			"matches": [
@@ -24,7 +31,8 @@
 			],
 			"exclude_matches": [
 				"https://vu.sfc.keio.ac.jp/sfc-sfs/",
-				"https://vu.sfc.keio.ac.jp/sfc-sfs/index.cgi*"
+				"https://vu.sfc.keio.ac.jp/sfc-sfs/index.cgi*",
+				"https://vu.sfc.keio.ac.jp/sfc-sfs/login.cgi"
 			],
 			"run_at" : "document_end",
 			"js": ["better_link.js"],
@@ -37,6 +45,12 @@
 			"run_at" : "document_end",
 			"js": ["get_session.js"],
 			"all_frames" : true
+		},
+		{
+			"matches": [
+				"https://vu.sfc.keio.ac.jp/sfc-sfs/*"
+			],
+			"css": ["overwrite.css"]
 		}
 	],
 	"browser_action": {
