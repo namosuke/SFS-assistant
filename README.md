@@ -36,5 +36,5 @@ https://vu.sfc.keio.ac.jp 以外との外部通信は一切していません。
 安全性の問題を発見した場合は、該当コードを明示してIssueにてご報告ください。  
 
 # 制作者
-©Toshiaki Kamitani
-このソフトウェアはOSSではありません。
+©Toshiaki Kamitani  
+このソフトウェアはOSSではありません。  
