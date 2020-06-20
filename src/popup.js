@@ -67,7 +67,9 @@ const loadTasks = (url, name, progress) => {
 	});
 }
 
-(async () => {
+const load = async () => {
+	let loading = document.querySelector('#loading-area');
+	loading.innerHTML = `<progress value="0" max="0" id="progress"></progress>`;
 	const storage = await getStorage();
 	const session = getSession(storage);
 	if(session) {
@@ -79,17 +81,19 @@ const loadTasks = (url, name, progress) => {
 			promises[i] = loadTasks(match[1], match[2], progress);
 			i++;
 		}
-		progress.setAttribute('max', i + 1);
-		progress.value = 2;
+		progress.setAttribute('max', i);
 		Promise.all(promises).then(
 			response => {
 				let text = '';
 				for(let value of response) {
 					text += value;
 				}
-				let lessons = document.querySelector('#lessons');
 				lessons.innerHTML = text;
+				loading.innerHTML = '';
 			}
 		);
 	}
-})();
+};
+
+let button = document.querySelector('#reload');
+button.onclick = load;

@@ -51,13 +51,22 @@
 		color: hsl(54, 100%, 24%);
 		border: solid 1px hsl(51, 100%, 35%);
 	}
+	#reload {
+		cursor: pointer;
+		float: right;
+		position: relative;
+		top: -2px;
+	}
+	#reload img {
+		height: 19px;
+	}
 </style>
 </head>
 <body>
 <div class="body">
-<h4 class="one">未提出の課題一覧</h4>
-<div id="lessons">読込中…
-<progress value="0" max="0" id="progress"></progress></div>
+<h4 class="one">未提出の課題一覧<button id="reload"><img src="refresh.svg" alt="更新" title="更新"></button></h4>
+<div id="loading-area"></div>
+<div id="lessons"></div>
 </div>
 <script src="popup.js"></script>
 </body>

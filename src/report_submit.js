@@ -25,17 +25,21 @@ xhr.onreadystatechange = function() {
 	}
 }
 xhr.send();
+
 // リセットボタン抹消
 document.querySelector('input[type="reset"]').style.display = 'none';
 let submit = document.querySelector('input[type="submit"]');
 submit.style.width = '200px';
 submit.style.height = '50px';
+
 // タイトルに自動入力
 let autocomp = function() {
 	document.querySelector('input[name="title"]').value = document.body.innerHTML.match(/「<a href="report\.cgi.*?">(.*?)<\/a>」<\/b><br>/s)[1];
 }
 window.setTimeout(autocomp, 10);  // 早すぎるとだめっぽい？
+
 // 提出時にコピーは後回し
+
 // 文字数カウント
 if(document.querySelector('textarea[name="report_text"]')) {
 	let div = document.createElement('div');
